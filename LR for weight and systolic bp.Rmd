@@ -1,0 +1,86 @@
+---
+title: "Building a Model for weight and systolic bp of male people aging 25-30"
+author: "Nithya S"
+date: "2023-11-03"
+output: word_document
+---
+# Objective
+
+•	Obtaining the scatter plot and interpreting.
+•	Finding the regression line connecting the variables systolic bp and weight. To interpret the plot, intercept term and the regression coefficients. To infer from the sign of regression coefficient.
+•	Obtaining the fitted values. To check if the sum of fitted values is equal to the sum of observed values.
+
+URL for the dataset: 
+
+***https://docs.google.com/spreadsheets/d/1WXzKqlu21X3qhfAWn1-FaoY3OkLI78VD/edit?usp=sharing&ouid=110138716074493614410&rtpof=true&sd=true***
+
+
+# Procedure and analysis
+
+We import the dataset from excel in order to proceed further.
+We import the dataset as follows
+
+```{r }
+library(readxl)
+Dataset <- read_excel("G:/My Drive/Linear Regression/Datasets/Dataset.xlsx")
+View(Dataset)
+attach(Dataset)
+```
+Now that we have attached the dataset, we now proceed to build the model.
+
+## To check the relationship between the variables under study
+
+### 1. By plotting 
+
+```{r }
+plot(Dataset$Weight,Dataset$`Symbolic BP`,col="purple",main="Weight and Systolic BP Regression ",xlab="weight in pounds",ylab="Systolic bp in mmhg")
+```
+
+### 2.By Karl Pearson's correlation co-efficient
+
+```{r }
+cor(Dataset$Weight,Dataset$`Symbolic BP`)
+```
+
+#### We give a regression equation
+
+```{r }
+model=lm(Dataset$`Symbolic BP`~Dataset$Weight)
+model
+summary(model)
+```
+### To plot the observations with a smooth line
+
+```{r }
+plot(Dataset$Weight,Dataset$`Symbolic BP`,col="purple",main="Weight and Sysbolic BP Regression ",xlab="weight in pounds",ylab="Sysbolic bp in mmhg")
+
+scatter.smooth(Dataset$`Symbolic BP`,Dataset$Weight,col="purple",main="Weight and Sysbolic BP Regression ",xlab="weight in pounds",ylab="Sysbolic bp in mmhg")
+```
+
+#### Fitted lines in a scatter diagram
+
+```{r }
+plot(Dataset$Weight,Dataset$`Symbolic BP`,col="purple",main="Weight and Sysbolic BP Regression ",xlab="weight in pounds",ylab="Sysbolic bp in mmhg")
+
+scatter.smooth(Dataset$`Symbolic BP`,Dataset$Weight,col="purple",main="Weight and Sysbolic BP Regression ",xlab="weight in pounds",ylab="Sysbolic bp in mmhg")
+
+abline(lm(Dataset$Weight~Dataset$`Symbolic BP`))
+```
+
+### To obtain the fitted values
+
+```{r }
+Fit=fitted.values(model)
+Fit
+```
+
+To see if the sum of the fitted values is equal to the sum of the observed values.
+First we sum the fitted values. Then we sum the Systolic bp values and check if they both are the same as follows.
+
+```{r }
+sum_fit=sum(Fit)
+sum_fit
+
+sum_sysbp=sum(Dataset$`Symbolic BP`)
+sum_sysbp
+```

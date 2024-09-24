@@ -1,0 +1,118 @@
+---
+title: "Building a Linear Regression model for housing dataset"
+author: "Nithya S"
+date: "2023-11-10"
+output: word_document
+---
+# Objective
+
+To choose any dataset for simple linear regression and examine the following 
+1. To comment about the different steps involved in building a simple linear regression model
+2. To plot the scatter diagram for the data and find coefficient of correlation. What inference can be drawn from the scatter plot.
+3. To estimate the parameters of a simple linear regression model and fit a regression line.To interpret the results.
+4. To test the significance of the regression coefficient and interpret the results.
+5. Different ways in which we can assess the quality of the fit.
+
+
+## To plot the scatter diagram for the data and find coefficient of correlation. Inference to be drawn from the scatter plot.
+
+The housing dataset is taken from kaggle 
+
+URL for the dataset: 
+
+***https://www.kaggle.com/datasets/ashydv/housing-dataset/data?select=Housing.csv***
+
+The dataset has information about the price, area, different rooms, furniture style.
+Here the interested variables are price and area.
+Since the price increases or decreases with the decrease in area, we conclude that the independent variable is area (x) and the dependent variable is price(y).
+We now proceed to check the kind of relationship between the variables of interest.
+First we import the data and then proceed further
+
+```{r }
+library(readr)
+Housing_dataset <- read_csv("G:/My Drive/Linear Regression/Datasets/Housing_dataset.csv")
+View(Housing_dataset)
+attach(Housing_dataset)
+```
+We now plot the graph as follows:
+ 
+```{r }
+plot(Housing_dataset$area,Housing_dataset$price,col="hotpink",main="Relationship of Area and Price",xlab="Area in sqm",ylab="price in $")
+```
+
+The relationship can be understood better numerically by calculating the Karl Pearson's co-efficient.
+We find the correlation of coefficient also known as Karl Pearson's correlation coefficient as follows:
+
+```{r }
+cor(Housing_dataset$area,Housing_dataset$price)
+```
+
+## To estimate the parameters of a simple linear regression model and fit a regression line.To interpret the results.
+
+In order to estimate the parameters we fit the model.
+We build the model as below:
+
+```{r }
+reg_model=lm(Housing_dataset$price~Housing_dataset$area)
+reg_model
+```
+
+To fit a regression line
+
+```{r }
+plot(Housing_dataset$area,Housing_dataset$price,col="hotpink",main="Relationship of Area and Price",xlab="Area in sqm",ylab="price in $")
+
+abline(reg_model)
+```
+
+We can also have a smooth line connecting the points which gives us a better visuals in order to understand the data better.
+
+```{r }
+plot(Housing_dataset$area,Housing_dataset$price,col="hotpink",main="Relationship of Area and Price",xlab="Area in sqm",ylab="price in $")
+
+scatter.smooth(Housing_dataset$area,Housing_dataset$price,col="hotpink",main="Relationship of Area and Price",xlab="Area in sqm",ylab="price in $")
+
+abline(reg_model)
+```
+
+## To test the significance of the regression coefficient and interpret the results.
+
+We give the hypotheses as follows:
+H0: B1=B10 [zero]
+v/s
+H1: B1=!B10 [zero]
+We quickly check the summary of the model as foll0ws:
+
+```{r }
+summary(reg_model)
+```
+
+## Goodness of fit-Analysis
+Here, t calculated value  14.79 is significantly large than t(table value)=1.9643  [two tailed test with 344 degrees of freedom and 5% significance level], therefore there exist a very strong linear relation. 
+Since p-value is very small compared to 0.05 there exist a very strong linear relation.
+
+## Different ways in which we can assess the quality of the fit.
+
+We fit the observed and the predicted values as follows
+
+```{r }
+Fitted_values=fitted.values(reg_model)
+Fitted_values
+```
+After calculating the fitted values with the help of the estimated coefficients B0 and B1 along with the independent variable area(x), we plot the observed and the predicted values. We also use "scatter.smooth" inorder to get better understanding from the graph
+
+```{r }
+plot(Housing_dataset$price,Fitted_values,col="hotpink",main="Observed values and the Predicted values",xlab="Observed values",ylab="Predicted/Fitted values")
+
+scatter.smooth(Housing_dataset$price,Fitted_values,col="hotpink",main="Observed values and the Predicted values",xlab="Observed values",ylab="Predicted/Fitted values")
+```
+
+## Coefficient of determination
+Determining the coefficient is important in order to assess the quality of the fit
+We calculate the coefficient of determination (r) as follows:
+
+```{r }
+r=cor(Housing_dataset$price,Fitted_values)
+r
+r^2
+```

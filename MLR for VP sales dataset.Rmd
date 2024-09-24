@@ -1,0 +1,181 @@
+---
+title: "Building a best multiple linear regression model for VP of sales data set."
+author: "Nithya S"
+date: "2023-12-21"
+output: word_document
+---
+# Objective
+
+I am a VP of sales and have responsibility for 41 stores.I have collected data from the
+stores on advertising costs, store size in square feet, % employee retention, customer
+satisfaction score, whether a promotion was run or not, and sales. I want to build a model
+that can predict sales based on these five variables.
+
+1. To fit a best multiple linear regression model to predict the sales using the forward selection and
+backward elimination procedure. 
+2. To prepare a report based on the above questions with introduction, analysis, and conclusions.
+
+URL for the dataset: 
+
+***https://docs.google.com/spreadsheets/d/1X__s4VEOlm8dQT3LqTFQkotF3QZg-t45/edit?usp=sharing&ouid=110138716074493614410&rtpof=true&sd=true***
+
+First, we import the dataset in order tp proceed further with the analysis.
+We import the dataset as follows:
+
+```{r }
+library(readxl)
+VP_sales <- read_excel("G:/My Drive/Linear Regression/Datasets/VP_sales-dataset.xlsx")
+View(VP_sales)
+attach(VP_sales)
+```
+
+We fit the best regression model by two methods: 
+1. Forward selection
+2. Backward elimination
+
+First we fit the best regression model by using forward selection
+
+The algorithm for Forward Selection is:
+1. Choose a significance level.
+2. Fit a model with intercept term alone.
+3. Construct the individual model for the independent variables with the above constant model. After fitting the model, we check for the least p-value [lesser than the significance level, here it is 15%], or least AIC value or t-value which is larger.
+4. Two cases arise here, if there are any variables which are not significant, we ignore them and consider the significant variables.
+5. After construction of the model with the significant variable, we fix this model and add other independent variables individually for this fixed model.
+6. We see for the least p-value or lesser AIC value or the larger t-value.
+7. We continue this process until all the significant variables have been fitted and insignificant variables are removed.
+
+To get the forward selection model, we first fit a constant model.
+Then we fit a model with all the variables and then fit the best model as follows:
+
+```{r }
+fit_start=lm(sales~1,data=VP_sales)
+fit_start
+summary(fit_start)
+
+fit_all=lm(sales~.,data=VP_sales)
+fit_all
+
+forward=step(fit_start,direction="forward",scope=formula(fit_all))
+forward
+summary(forward)
+```
+
+Now we fit the best regression model by using backward elimination
+
+The algorithm for Backward elimination is:
+1. Choose a significance level, here it is 15%.
+2. Fit the regression model with all the independent variables. Here it is a full model.
+3. Observe the p-value which is the highest 
+4. If the p-value is greater than 0.15, we remove the variable.
+5. if there are no variables with p-value greater than 0.15, we stop the process and say it is the best fitted model.
+6. If there are variables with p-value greater than 0.15, refit the model without the regressor.
+
+Here we call for the full model and construct the model using backward elimination as follows:
+
+```{r }
+fit_all
+
+backward=step(fit_all,direction='backward')
+backward
+summary(backward)
+```
+
+The analysis to be done for the model step by step is as follows:
+1. Plot the data or find the correlation between the variables, in order to know the kind of relationship between the variables.
+2. Fit the model using variable selection procedure [Forward selection, Backward elimination or Step wise selection]
+3. Check for multi-collinearity.
+4. Residual analysis
+   a) Residual v/s fitted values
+   If there exists an influential point, remove that and refit the model and continue the same procedure.
+   b) Normality test: Shapiro test or QQ plot
+   c) Autocorrelation : ACF (Autocorrelation function) plot, Durbin Watson test
+If all these conditions are satisfied, we say that the model is the best multiple linear regression model.
+
+Firstly, we plot the data as follows:
+
+```{r }
+pairs(VP_sales[1:7])
+```
+Since,we find difficulty in finding the relationship of the independent variables with the dependent variable, we go for the correlation function as below:
+
+```{r }
+library(Hmisc)
+rcorr(as.matrix(VP_sales))
+```
+We get the correlation matrix as above. 
+
+Secondly, we construct the model using variable selection procedure.
+Here, we used both Forward selection and Backward elimination procedure and selected model obtained using Forward selection procedure. 
+
+Now, we check for multicollinearity as follows:
+
+```{r }
+library(car)
+vif(forward)
+```
+
+Now, we go for residual analysis.
+First, we get the residuals of the model and plot the obatained residuals with fitted values in order to understand the linearity, constant variance and outliers of the model.
+
+```{r }
+fitted_values=fitted.values(forward)
+fitted_values
+
+plot(fitted_values,resid(forward),col="hotpink",main="Fitted values and Residual values",xlab="fitted values",ylab="residual values")
+abline(0,0)
+```
+
+Now, to see if there are any outliers or influential points in the model:
+We check the same by using two methods
+1. Standardized residuals
+2. Studentized residuals
+
+Let us use standardized residuals. The procedure is as follows:
+
+```{r }
+plot(fitted_values,rstandard(forward),col="hotpink",main="Fitted values and Standardized values",xlab="fitted values",ylab="standardized values")
+abline(0,0)
+
+```
+
+To be very precise we can even check in the residual values for outliers as follows:
+
+```{r }
+residuall=rstandard(forward)
+residuall
+plot(residuall)
+
+```
+Now we have numerically seen that there are no outliers in the dataset.
+Since, there are no outliers in the model, we proceed further.
+
+We check if the normality assumption is satisfied by using 
+1. QQ plot
+2. Shapiro test
+
+The QQ plot is as follows:
+
+```{r }
+plot(forward)
+
+#or 
+
+qqnorm(residuall) # QQ plot-of residual
+
+qqline(residuall) # plots the points
+```
+
+The Shapiro test is as follows:
+
+Hypothesis to testing for normality:
+H0: Errors follows normal distribution.
+v/s
+H1: Errors do not follow normal distribution.
+
+```{r }
+shapiro.test(residuall)
+
+```
+
+The assumption of normality is not satisfied. 
+We can fix this problem by performing a transformation. In our model, we can take the logarithm transformation. Then we can refit our model and proceed for further analysis. By doing this transformation, the issue of normality can be fixed.

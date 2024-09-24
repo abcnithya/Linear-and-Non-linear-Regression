@@ -1,0 +1,94 @@
+---
+title: "Polynomial regression model for inbuilt dataset 'pressure'"
+author: "Nithya S"
+date: "2024-01-08"
+output: word_document
+---
+# Objective:
+
+1. By using the inbuilt data set "pressure" in R, fit a suitable linear regression model that relates pressure and temperature.
+2. Also, perform residual analysis and comment about the possibility of modelling non linear regression model for the data set.
+
+First we call for the data and plot the same.
+
+```{r }
+data=pressure
+data
+```
+
+```{r }
+plot(data$temperature,data$pressure,main="Realtionship of temperature and pressure",col='hotpink',xlab="temperature",ylab="pressure")
+```
+
+To fit a polynomial regression model, we proceed as follows:
+
+```{r }
+model=lm(pressure~temperature+I(temperature^2),data=data)
+model
+summary(model)
+plot(data$temperature,data$pressure,main="Realtionship of temperature and pressure",col='hotpink',xlab="temperature",ylab="pressure")
+lines(smooth.spline(data$temperature,predict(model)),col="hotpink",lwd=3)
+```
+
+i) First, we get the residuals of the model and plot the obtained residuals with fitted values in order to understand the linearity, constant variance and outliers of the model.
+
+```{r }
+fitted_values=fitted.values(model)
+fitted_values
+
+plot(fitted_values,resid(model),col="hotpink",main="Fitted values and Residual values",xlab="fitted values",ylab="residual values")
+abline(0,0)
+```
+
+Let us use standardized residuals. The procedure is as follows:
+
+```{r }
+plot(fitted_values,rstandard(model),col="hotpink",main="Fitted values and Standardized values",xlab="fitted values",ylab="standardized values")
+abline(0,0)
+```
+
+To be very precise we can even check in the residual values for outliers as follows:
+
+```{r }
+residual=rstandard(model)
+residual
+plot(residual)
+```
+
+Since, there are no outliers in the model, we proceed further.
+
+ii) Now, we check if the normality assumption is satisfied by using 
+1. QQ plot
+2. Shapiro test
+
+The QQ plot is as follows:
+
+```{r }
+resi=resid(model)
+
+qqnorm(resi) # QQ plot-of residual
+
+qqline(resi) # plots the points
+```
+
+The Shapiro test is as follows:
+
+Hypothesis to testing for normality:
+H0: Errors follows normal distribution.
+v/s
+H1: Errors do not follow normal distribution.
+
+```{r }
+shapiro.test(residual)
+```
+
+Hypothesis testing for constant variance :
+To test if the errors have constant variance.
+H0: errors have constant variance
+v/s
+H1: errors have no constant variance
+
+```{r }
+library(lmtest)
+bptest(model)
+```

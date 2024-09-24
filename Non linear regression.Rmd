@@ -1,0 +1,130 @@
+---
+title: "Non linear regression model"
+author: "Nithya S"
+date: "2024-01-12"
+output: word_document
+---
+# Objective
+
+To represent the substrate concentration (S) and the observed velocity (v) based on an enzymology experiment.
+
+(a) Fit a non linear regression model that relates velocity to concentration using Michaelis-Menten equation .
+(b) Analyse and examine whether you can fit a simple linear regression model that relates velocity and substrate concentration by using any suitable transformation.
+
+URL for the dataset:
+
+***https://docs.google.com/spreadsheets/d/1X_rJrknx0vAdunPST5Dh0PQKffC5LeDE/edit?usp=sharing&ouid=110138716074493614410&rtpof=true&sd=true***
+
+We import the data to perform the analysis as follows:
+
+```{r }
+library(readxl)
+Dataset <- read_excel("G:/My Drive/Linear Regression/Datasets/Substrate concentration.xlsx")
+View(Dataset)
+attach(Dataset)
+```
+
+To start off, we plot the data as follows:
+
+```{r }
+plot(S,V,col="hotpink",main="Relationship between concentration and velocity",xlab="Concentration",ylab="Velocity")
+```
+
+We fit the non linear regression model that relates velocity to concentration using Michaelis-Menten equation as follows.
+
+```{r }
+MM_model=nls(V~V_max*S/(K_m+S),start=c(V_max=72,K_m=5),data=Dataset)
+summary(MM_model)
+plot(S,V,col="hotpink",main="Relationship between concentration and velocity",xlab="Concentration",ylab="Velocity")
+lines(S,predict(MM_model,lty=1,col="blue",lwd=3))
+```
+
+We also see from the summary that, the regression coefficients are significant at 5% significance level. 
+Since the values are significant, we proceed for residual analysis. 
+
+```{r }
+residual=resid(MM_model)
+residual
+plot(residual)
+abline(0,0)
+```
+
+Now to check for Normality condition
+
+```{r }
+qqnorm(resid(MM_model)) # QQ plot-of residual
+qqline(resid(MM_model)) # plots the points
+```
+
+Hypothesis to testing for normality:
+H0: Errors follows normal distribution.
+v/s
+H1: Errors do not follow normal distribution.
+
+Normality using shapiro test
+
+```{r }
+shapiro.test(resid(MM_model))
+
+```
+
+The above model will reduce to a linear model when simplified.
+
+```{r }
+library(readxl)
+New_data <- read_excel("G:/My Drive/Linear Regression/Datasets/Substrate concentration.xlsx")
+View(New_data)
+attach(New_data)
+
+```
+
+We plot the above in a graph to understand the relationship now that we have taken the inverse
+
+```{r }
+S_new=1/S
+V_new=1/V
+
+plot(S_new,V_new,col="hotpink",main="Relationship between concentration and velocity",xlab="Concentration",ylab="Velocity")
+```
+
+The non-linear model has now become a linear model due to inverse transformation which is visible in the graph.
+Now we build a linear regression model for the transformed variables and validate the same.
+
+```{r }
+Reg_model=lm(V_new~S_new)
+Reg_model
+summary(Reg_model)
+```
+
+We also see from the summary that, the regression coefficients are significant at 5% significance level. 
+Since the values are significant, we proceed for residual analysis. 
+
+We check for the normality by
+1. QQ-plot
+2. Shapiro test
+
+```{r }
+qqnorm(resid(Reg_model)) # QQ plot-of residual
+qqline(resid(Reg_model)) # plots the points
+```
+
+Hypothesis to testing for normality:
+H0: Errors follows normal distribution.
+v/s
+H1: Errors do not follow normal distribution.
+
+```{r }
+shapiro.test(resid(Reg_model))
+```
+
+Hypothesis testing for constant variance :
+To test if the errors have constant variance.
+H0: errors have constant variance
+v/s
+H1: errors have no constant variance
+
+```{r }
+library(lmtest)
+bptest(Reg_model)
+
+```

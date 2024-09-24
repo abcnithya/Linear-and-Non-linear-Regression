@@ -1,0 +1,168 @@
+---
+title: "Linear regression model for clathrate formation dataset "
+author: "Nithya S"
+date: "2023-12-08"
+output: word_document
+---
+# Introduction
+
+A clathrate is a chemical substance consisting of a lattice that traps or contains molecules. Clathrate hydrates are not officially chemical compounds, as the enclathrated guest molecules are never bonded to the lattice. The formation and decomposition of clathrate hydrates are first order phase transitions, not chemical reactions. The dataset considered here is about the Clathrate formation.
+
+# Objective
+
+1. Fit a suitable linear regression model. 
+2. Construct a normal probability plot of the residuals. Does there seem to be any problem with the normality and constant variance assumption?If yes, what remedial measure will u perform?
+3. Construct and interpret a plot of the residuals.
+4. Are the residuals correlated?
+5. Is multi-collinearity a potential problem in your model? If it is a problem, what is your remedy?
+6. Are there any outliers in the data? If it exists, how will you treat it?
+
+URL for the dataset:
+
+***https://docs.google.com/spreadsheets/d/1WYlGKzpvfHr6PIgxgyPlo_1E6qYRJk5F/edit?usp=sharing&ouid=110138716074493614410&rtpof=true&sd=true***
+
+First we import the dataset as follows:
+
+```{r }
+library(readxl)
+Cathedral_data_formation <- read_excel("G:/My Drive/Linear Regression/Datasets/Cathedral data-formation.xlsx")
+View(Cathedral_data_formation)
+attach(Cathedral_data_formation)
+```
+
+### 1. Fit a suitable linear regression model. 
+
+The suitable linear regression model for the dataset would be "Multiple regression model".
+In order to fit the model, we first plot the variables to understand the relationship between them. Since there are two independent and one dependent variables, we plot the data using pairs as follows.
+
+```{r }
+pairs(Cathedral_data_formation[1:3])
+```
+The correlation matrix for the same would be
+
+```{r }
+cor(Cathedral_data_formation)
+```
+
+Now we fit the model as follows:
+
+```{r }
+model_cathedral_data_formation=lm(y~.,data=Cathedral_data_formation)
+model_cathedral_data_formation
+summary(model_cathedral_data_formation)
+```
+
+### 2. Construct a normal probability plot of the residuals. Does there seem to be any problem with the normality and constant variance assumption?If yes, what remedial measure will u perform?
+
+```{r }
+plot(model_cathedral_data_formation)
+```
+Assumption of normality
+1. QQ-plot
+2. PP-plot
+3. kolmogrov/shapiro test
+
+```{r }
+residual=resid(model_cathedral_data_formation)
+residual
+
+qqnorm(residual) # QQ plot-of residual
+
+qqline(residual) # plots the points
+```
+
+Hypothesis to testing for normality:
+H0: Errors follows normal distribution.
+v/s
+H1: Errors do not follow normal distribution.
+
+Normality using shapiro
+
+```{r }
+shapiro.test(residual)
+```
+
+Hypothesis testing for constant variance :
+To test if the errors have constant variance.
+H0: errors have constant variance
+v/s
+H1: errors have no constant variance
+
+```{r }
+library(lmtest)
+bptest(model_cathedral_data_formation)
+```
+
+### 3. Construct and interpret a plot of the residuals.
+
+To plot the residuals, we first get the fitted values for the model.
+Then we plot the fitted values and the residual values as follows:
+
+```{r }
+fit=fitted.values(model_cathedral_data_formation)
+fit
+
+residual=resid(model_cathedral_data_formation)
+residual
+
+plot(fit,residual,col="blue",main="Normal Probability plot of the residuals",xlab="Fitted values",ylab="Residual values")
+
+abline(0,0)
+```
+
+### 4. Are the residuals correlated?
+
+To check if the residuals are uncorrelated
+We can check for autocorrelation in the residuals by two ways,
+1. By plotting the acf[Autocorrelation Function] curve 
+2. By performing the Durbin Watson test.
+
+First we plot the acf curve:
+
+```{r }
+residual
+acf(residual)
+```
+
+For examining the Durbin Watson test
+The hypothesis to be tested:
+H0 : No autocorrelation 
+v/s 
+H1 : autocorrelation
+
+
+```{r }
+dwtest(model_cathedral_data_formation)
+```
+
+### 5. Is multi-collinearity a potential problem in your model? If it is a problem, what is your remedy?
+
+To check for multi-collinearity, we check if there is correlation greater than 0.7 for the independent variables, here it is X1 and X2.
+To check this, we call see the correlation of the model
+
+
+```{r }
+cor(Cathedral_data_formation)
+```
+
+### 6. Are there any outliers in the data? If it exists, how will you treat it?
+
+To check if there are any outliers and scale out the residual values we use standardized residuals.
+
+```{r }
+plot(fit,rstandard(model_cathedral_data_formation),col="blue",main="Fitted values and Standardized values",xlab="fitted values",ylab="standardized values")
+abline(0,0)
+```
+
+To be precise we can even check in the residual values for outliers as follows:
+
+```{r }
+residual_1=rstandard(model_cathedral_data_formation)
+residual_1
+
+plot(residual_1)
+```
+Now we have numerically seen that there are no outliers in the dataset.
+If there exists outliers in the dataset, we remove the outliers from the dataset and proceed for the analysis by re-fitting the model.
+
+There were no outliers in our considered dataset. 

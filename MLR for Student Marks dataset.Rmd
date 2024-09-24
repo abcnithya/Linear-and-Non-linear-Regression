@@ -1,0 +1,102 @@
+---
+title: "Building a Multiple Linear Regression Model for Students Marks Dataset"
+author: "Nithya S"
+date: "2023-11-17"
+output: word_document
+---
+# Objective
+
+To choose a data set of choice and perform a multiple linear regression with at least two regressors and to analyze it with the following questions:
+
+1. To plot a matrix of scatter diagrams between the variables of interest and to find the matrix of
+coefficient of correlations and interpret it. To see if the regressors are independent of each other?
+2. To fit a multiple linear regression model and interpret the estimated coefficients.
+3. To test the significance of regression parameters using the t-test and interpret it.
+4. Obtain the prediction and Confidence interval and interpret the results.
+
+To Prepare a report based on the above questions with introduction, analysis, and conclusions.
+
+URl for the dataset:
+
+***https://drive.google.com/file/d/1XkzjIz9JFUg20ynbQeTLG6h4nhogr8WN/view?usp=sharing***
+
+# Data description
+The dataset taken here is the marks of the students. We have the number of courses, study time and marks as the components in the dataset.
+
+# Procedure and Analysis
+
+First we import the dataset as follows:
+
+```{r }
+library(readr)
+Student_Marks_dataset <- read_csv("G:/My Drive/Linear Regression/Datasets/Student_Marks_dataset.csv")
+View(Student_Marks_dataset)
+attach(Student_Marks_dataset)
+```
+
+### 1. To plot a matrix of scatter diagrams between the variables of interest and to find the matrix of coefficient of correlations and interpret it. To see if the regressors are independent of each other?
+
+After importing the dataset, we check for the relationship between the variables of interest by a matrix of scatter diagrams.
+We use "pairs" to do so.
+
+```{r }
+pairs(Student_Marks_dataset[1:3])
+```
+
+We use "rcorr" to get the correlation coefficient.
+
+```{r }
+library(Hmisc)
+rcorr(as.matrix(Student_Marks_dataset))
+```
+
+### 2. To fit a multiple linear regression model and interpret the estimated coefficients.
+
+On these lines, we can build our model as follows:
+
+```{r }
+modell=lm(Marks~.,Student_Marks_dataset)
+modell
+```
+
+### 3. To test the significance of regression parameters using the t-test and interpret it.
+
+We give the hypotheses as follows:
+H0: B1=B10[zero]
+    B2=B20[zero]
+v/s
+H1: B1=!B10[zero]
+    B2=!B20[zero]
+We quickly check the summary of the model as follows:
+
+```{r }
+summary(modell)
+```
+
+### 4. Obtain the prediction and Confidence interval and interpret the results.
+
+The confidence intervals for the model as be obtained as follows:
+For our understanding we find the intervals at 99% confidence
+
+```{r }
+confint(modell,level=0.99)
+```
+
+In order to get the prediction intervals, we first get the new observation as
+
+```{r }
+new_data1=data.frame(number_courses=5,time_study=6.05)
+new_data1
+```
+Now, the predicted value will be
+
+```{r }
+predict(modell,new_data1)
+```
+
+The prediction interval will be
+
+```{r }
+PI=predict(modell,new_data1,interval="confidence",level=0.99)
+PI
+```

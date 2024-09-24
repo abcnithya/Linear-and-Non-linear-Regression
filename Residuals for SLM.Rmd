@@ -1,0 +1,94 @@
+---
+title: "Residuals for the Simple regression model"
+author: "Nithya S"
+date: "2023-11-24"
+output: word_document
+---
+# Objectice
+
+Take a suitable data set for the Simple linear regression model and analyze it by establishing the linear relationship between the variables and hence examine the various residual plots to comment on the adequacy of the model.
+
+URL for the dataset:
+
+***https://drive.google.com/file/d/1XkzjIz9JFUg20ynbQeTLG6h4nhogr8WN/view?usp=sharing***
+
+# Procedure and Analysis
+
+We import the dataset as follows:
+
+```{r }
+library(readr)
+Student_Marks_dataset <- read_csv("G:/My Drive/Linear Regression/Datasets/Student_Marks_dataset.csv")
+View(Student_Marks_dataset)
+```
+
+We plot the variables [marks and study time]on the graph to get the idea about the relationship
+
+```{r }
+plot(Student_Marks_dataset$time_study,Student_Marks_dataset$Marks,col="purple",main="Relationship between Study time and Marks of the students",xlab="study time in hours",ylab="Marks")
+
+scatter.smooth(Student_Marks_dataset$time_study,Student_Marks_dataset$Marks,col="purple",main="Relationship between Study time and Marks of the students",xlab="study time in hours",ylab="Marks")
+```
+
+In order to get a better understanding between the variables, we obtain the correlation coefficient as follows:
+
+```{r }
+cor(Student_Marks_dataset$time_study,Student_Marks_dataset$Marks)
+```
+
+Now we build our model as follows:
+
+```{r }
+regmodel=lm(Student_Marks_dataset$Marks~Student_Marks_dataset$time_study)
+regmodel
+summary(regmodel)
+
+plot(Student_Marks_dataset$time_study,Student_Marks_dataset$Marks,col="purple",main="Relationship between Study time and Marks of the students",xlab="study time in hours",ylab="Marks")
+
+abline(regmodel, main="Relationship between Study time and Marks of the students",xlab="study time in hours",ylab="Marks")
+```
+
+Now to check if the assumptions are satisfied by the residuals
+
+## Residual analysis
+
+```{r }
+fit=fitted.values(regmodel)
+fit
+```
+We plot the fitted values and residual values of the model as:
+
+```{r }
+plot(fit,resid(regmodel),col="purple",main="Fitted values and Residual values",xlab="fitted values",ylab="residual values")
+abline(0,0)
+```
+
+To check if there are any outliers and scale out the residual values we use standardized residuals. 
+
+```{r }
+plot(fit,rstandard(regmodel),col="purple",main="Fitted values and Standardized values",xlab="fitted values",ylab="standardized values")
+abline(0,0)
+```
+
+To be very precise we can even check in the residual values for outliers as follows:
+
+```{r }
+residual=rstandard(regmodel)
+residual
+plot(residual)
+```
+
+We can also try for studentized residual
+
+```{r }
+plot(fit,rstudent(regmodel),col="purple",main="Fitted values and Studentized values",xlab="fitted values",ylab="studentized values")
+abline(0,0)
+```
+
+All the plots of the model can be obtained:
+
+```{r }
+plot(regmodel)
+```
+
+Here the inference is drawn only from the first graph.
